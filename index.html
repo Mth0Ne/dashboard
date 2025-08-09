@@ -10,118 +10,45 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* SON TASARIM İYİLEŞTİRMELERİ */
+        /* Tasarım stillerinde değişiklik yok, sadece yeni .chart-wrapper sınıfı eklendi */
         :root {
-            --arkaplan: #f7f8fc;
-            --kart-arkaplan: #ffffff;
-            --golge: rgba(108, 114, 147, 0.08);
-            --ana-yazi: #1e2022;
-            --ikincil-yazi: #6c757d;
-            --vurgu-rengi: #4a6cf7;
-            --yesil: #198754;
-            --kirmizi: #dc3545;
-            --border-rengi: #e9ecef;
+            --arkaplan: #f7f8fc; --kart-arkaplan: #ffffff; --golge: rgba(108, 114, 147, 0.08); 
+            --ana-yazi: #1e2022; --ikincil-yazi: #6c757d; --vurgu-rengi: #4a6cf7; 
+            --yesil: #198754; --kirmizi: #dc3545; --border-rengi: #e9ecef;
         }
-
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--arkaplan); 
-            color: var(--ana-yazi); 
-            margin: 0;
-            padding: 0;
-        }
-        
-        .header-bar {
-            background-color: var(--kart-arkaplan);
-            padding: 16px 32px;
-            border-bottom: 1px solid var(--border-rengi);
-            margin-bottom: 32px;
-        }
-
-        .header-bar h1 {
-            font-size: 1.5em;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .main-container { 
-            max-width: 1200px; 
-            margin: auto; 
-            padding: 0 24px 24px 24px;
-            display: grid; 
-            gap: 24px; 
-        }
-
-        .card {
-            background: var(--kart-arkaplan);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 20px var(--golge);
-        }
-
-        h2 { 
-            font-size: 1.25em;
-            font-weight: 600;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-        }
-
-        th, td { 
-            padding: 16px; 
-            text-align: left; 
-            border-bottom: 1px solid var(--border-rengi);
-            vertical-align: middle;
-            font-size: 0.95em;
-        }
-
-        thead th { 
-            color: var(--ikincil-yazi);
-            font-weight: 500;
-            font-size: 0.8em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
+        body { font-family: 'Inter', sans-serif; background-color: var(--arkaplan); color: var(--ana-yazi); margin: 0; padding: 0; }
+        .header-bar { background-color: var(--kart-arkaplan); padding: 16px 32px; border-bottom: 1px solid var(--border-rengi); margin-bottom: 32px; }
+        .header-bar h1 { font-size: 1.5em; font-weight: 600; margin: 0; }
+        .main-container { max-width: 1200px; margin: auto; padding: 0 24px 24px 24px; display: grid; gap: 24px; }
+        .card { background: var(--kart-arkaplan); border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px var(--golge); }
+        h2 { font-size: 1.25em; font-weight: 600; margin-top: 0; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 16px; text-align: left; border-bottom: 1px solid var(--border-rengi); vertical-align: middle; font-size: 0.95em; }
+        thead th { color: var(--ikincil-yazi); font-weight: 500; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; }
         tbody tr:last-child td { border-bottom: none; }
         .fon-kodu { font-weight: 600; }
         .profit { color: var(--yesil); }
         .loss { color: var(--kirmizi); }
-
-        .chart-container { 
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-
-        #loading {
-            text-align: center;
-            padding: 50px;
-            font-size: 1.1em;
-            color: var(--ikincil-yazi);
-        }
+        .chart-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        #loading { text-align: center; padding: 50px; font-size: 1.1em; color: var(--ikincil-yazi); }
         
+        /* DEĞİŞİKLİK BURADA: GRAFİKLERİ KONTROL ALTINDA TUTAN SINIF */
+        .chart-wrapper {
+            position: relative;
+            height: 350px; /* Grafiğin yüksekliğini sabitler */
+            width: 100%;
+        }
+
         @media (max-width: 768px) {
-            .chart-container {
-                grid-template-columns: 1fr;
-            }
-            .header-bar {
-                padding: 16px;
-                margin-bottom: 24px;
-            }
+            .chart-container { grid-template-columns: 1fr; }
+            .header-bar { padding: 16px; margin-bottom: 24px; }
         }
 
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <header class="header-bar">
-        <h1>Portföy Paneli</h1>
-    </header>
+    <header class="header-bar"><h1>Portföy Paneli</h1></header>
 
     <main class="main-container">
         <div class="card">
@@ -142,99 +69,33 @@
         </div>
 
         <div class="chart-container">
-            <div class="card"><h2>Portföy Dağılımı</h2><canvas id="pastaGrafik" height="300"></canvas></div>
-            <div class="card"><h2>Fonların Güncel Değerleri</h2><canvas id="sutunGrafik" height="300"></canvas></div>
+            <div class="card">
+                <h2>Portföy Dağılımı</h2>
+                <div class="chart-wrapper">
+                    <canvas id="pastaGrafik"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Fonların Güncel Değerleri</h2>
+                <div class="chart-wrapper">
+                    <canvas id="sutunGrafik"></canvas>
+                </div>
+            </div>
         </div>
     </main>
 
     <script>
         const aPiUrl = 'https://script.google.com/macros/s/AKfycbyasF5oSTfrg7dgTPdkqrbA_mCuUNEbaxoTGClYa_2qLDHoDoB4Ka84EzMQileLHdGA/exec'; // LÜTFEN KENDİ GOOGLE APPS SCRIPT URL'NİZİ BURAYA YAPIŞTIRIN
 
-        function formatCurrency(value) {
-            const number = parseFloat(value.toString().replace(/\./g, '').replace(',', '.'));
-            if (isNaN(number)) return "-";
-            return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(number);
-        }
-
-        function formatPercentage(value) {
-            const number = parseFloat(value.toString().replace(',', '.'));
-            if (isNaN(number)) return "-";
-            return '%' + number.toFixed(2).replace('.', ',');
-        }
-
-        fetch(aPiUrl)
-            .then(response => response.json())
-            .then(data => {
-                if(data.hata){
-                    document.getElementById('loading').textContent = "API Hatası: " + data.hata;
-                    return;
-                }
-
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('ozet-tablosu').style.display = 'table';
-
-                const ozetBody = document.getElementById('ozet-tablosu-body');
-                
-                // DEĞİŞİKLİK BURADA: Sütunların sırasını güncelledik
-                data.ozetTablosu.forEach(row => {
-                    let tr = ozetBody.insertRow();
-                    
-                    tr.insertCell().innerHTML = `<span class="fon-kodu">${row[0]}</span>`; // Fon Kodu
-                    tr.insertCell().textContent = formatCurrency(row[1]); // Güncel Değer
-                    tr.insertCell().textContent = formatCurrency(row[3]); // Toplam Maliyet
-                    
-                    let karZararTL = tr.insertCell();
-                    karZararTL.textContent = formatCurrency(row[2]); // Toplam K/Z (TL)
-                    
-                    let karZararYuzde = tr.insertCell();
-                    karZararYuzde.textContent = formatPercentage(row[4]); // Toplam K/Z (%)
-
-                    const kzSayisal = parseFloat(row[2].replace(/\./g, '').replace(',', '.'));
-                    if (kzSayisal > 0) {
-                        karZararTL.classList.add('profit');
-                        karZararYuzde.classList.add('profit');
-                    } else if (kzSayisal < 0) {
-                        karZararTL.classList.add('loss');
-                        karZararYuzde.classList.add('loss');
-                    }
-                });
-
-                // Pasta Grafiği
-                new Chart(document.getElementById('pastaGrafik'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: data.ozetTablosu.map(row => row[0]),
-                        datasets: [{
-                            data: data.ozetTablosu.map(row => parseFloat(row[1].replace(/\./g, '').replace(',', '.'))),
-                            backgroundColor: ['#4a6cf7', '#ff8c3c', '#28a745', '#dc3545', '#6c757d'],
-                            borderWidth: 0,
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-                });
-
-                // Sütun Grafiği
-                new Chart(document.getElementById('sutunGrafik'), {
-                    type: 'bar',
-                    data: {
-                        labels: data.ozetTablosu.map(row => row[0]),
-                        datasets: [{
-                            label: 'Güncel Değer (TL)',
-                            data: data.ozetTablosu.map(row => parseFloat(row[1].replace(/\./g, '').replace(',', '.'))),
-                            backgroundColor: 'rgba(74, 108, 247, 0.8)',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: { 
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true } }
-                    }
-                });
-            })
-            .catch(error => {
-                document.getElementById('loading').textContent = "Veri çekilirken kritik bir hata oluştu: " + error;
-            });
+        // JavaScript kodunda değişiklik yok, öncekiyle aynı
+        function formatCurrency(v){const n=parseFloat(v.toString().replace(/\./g,'').replace(',','.'));return isNaN(n)?"-":new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY'}).format(n)}
+        function formatPercentage(v){const n=parseFloat(v.toString().replace(',','.'));return isNaN(n)?"-":'%'+n.toFixed(2).replace('.',',')}
+        fetch(aPiUrl).then(r=>r.json()).then(d=>{if(d.hata){document.getElementById('loading').textContent="API Hatası: "+d.hata;return}
+        document.getElementById('loading').style.display='none';document.getElementById('ozet-tablosu').style.display='table';const t=document.getElementById('ozet-tablosu-body');
+        d.ozetTablosu.forEach(r=>{let e=t.insertRow();e.insertCell().innerHTML=`<span class="fon-kodu">${r[0]}</span>`;e.insertCell().textContent=formatCurrency(r[1]);e.insertCell().textContent=formatCurrency(r[3]);
+        let a=e.insertCell();a.textContent=formatCurrency(r[2]);let n=e.insertCell();n.textContent=formatPercentage(r[4]);const o=parseFloat(r[2].replace(/\./g,'').replace(',','.'));o>0?(a.classList.add('profit'),n.classList.add('profit')):o<0&&(a.classList.add('loss'),n.classList.add('loss'))});
+        new Chart(document.getElementById('pastaGrafik'),{type:'doughnut',data:{labels:d.ozetTablosu.map(r=>r[0]),datasets:[{data:d.ozetTablosu.map(r=>parseFloat(r[1].replace(/\./g,'').replace(',','.'))),backgroundColor:['#4a6cf7','#ff8c3c','#28a745','#dc3545','#6c757d'],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:'bottom'}}}});
+        new Chart(document.getElementById('sutunGrafik'),{type:'bar',data:{labels:d.ozetTablosu.map(r=>r[0]),datasets:[{label:'Güncel Değer (TL)',data:d.ozetTablosu.map(r=>parseFloat(r[1].replace(/\./g,'').replace(',','.'))),backgroundColor:'rgba(74, 108, 247, 0.8)',borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0}}}})}).catch(e=>{document.getElementById('loading').textContent="Veri çekilirken kritik bir hata oluştu: "+e});
     </script>
 </body>
 </html>
