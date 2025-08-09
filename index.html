@@ -10,48 +10,164 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Tasarım stillerinde değişiklik yok, sadece yeni .chart-wrapper sınıfı eklendi */
+        /* NİHAİ TASARIM GÜNCELLEMESİ */
         :root {
-            --arkaplan: #f7f8fc; --kart-arkaplan: #ffffff; --golge: rgba(108, 114, 147, 0.08); 
-            --ana-yazi: #1e2022; --ikincil-yazi: #6c757d; --vurgu-rengi: #4a6cf7; 
-            --yesil: #198754; --kirmizi: #dc3545; --border-rengi: #e9ecef;
+            --arkaplan: #f7f8fc;
+            --kart-arkaplan: #ffffff;
+            --golge: rgba(108, 114, 147, 0.1);
+            --ana-yazi: #1e2022;
+            --ikincil-yazi: #6c757d;
+            --vurgu-rengi: #4a6cf7;
+            --yesil: #198754;
+            --kirmizi: #dc3545;
+            --border-rengi: #e9ecef;
         }
-        body { font-family: 'Inter', sans-serif; background-color: var(--arkaplan); color: var(--ana-yazi); margin: 0; padding: 0; }
-        .header-bar { background-color: var(--kart-arkaplan); padding: 16px 32px; border-bottom: 1px solid var(--border-rengi); margin-bottom: 32px; }
-        .header-bar h1 { font-size: 1.5em; font-weight: 600; margin: 0; }
-        .main-container { max-width: 1200px; margin: auto; padding: 0 24px 24px 24px; display: grid; gap: 24px; }
-        .card { background: var(--kart-arkaplan); border-radius: 12px; padding: 24px; box-shadow: 0 4px 20px var(--golge); }
-        h2 { font-size: 1.25em; font-weight: 600; margin-top: 0; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 16px; text-align: left; border-bottom: 1px solid var(--border-rengi); vertical-align: middle; font-size: 0.95em; }
-        thead th { color: var(--ikincil-yazi); font-weight: 500; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--arkaplan); 
+            color: var(--ana-yazi); 
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header-bar {
+            background-color: var(--kart-arkaplan);
+            padding: 20px 32px;
+            border-bottom: 1px solid var(--border-rengi);
+            margin-bottom: 32px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .header-bar h1 {
+            font-size: 1.6em;
+            font-weight: 700;
+            margin: 0;
+            text-align: center;
+        }
+
+        .main-container { 
+            max-width: 1200px; 
+            margin: auto; 
+            padding: 0 24px 24px 24px;
+            display: grid; 
+            gap: 24px; 
+        }
+
+        .card {
+            background: var(--kart-arkaplan);
+            border-radius: 16px;
+            padding: 24px 32px;
+            box-shadow: 0 6px 24px var(--golge);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(108, 114, 147, 0.15);
+        }
+
+        h2 { 
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 24px;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+
+        th, td { 
+            padding: 18px 16px; 
+            text-align: left; 
+            border-bottom: 1px solid var(--border-rengi);
+            vertical-align: middle;
+            font-size: 1em; /* Yazı boyutunu büyüttük */
+            font-weight: 500;
+        }
+
+        thead th { 
+            color: var(--ikincil-yazi);
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.75px;
+        }
+        
         tbody tr:last-child td { border-bottom: none; }
-        .fon-kodu { font-weight: 600; }
+        .fon-kodu { font-weight: 700; font-size: 1.05em; }
         .profit { color: var(--yesil); }
         .loss { color: var(--kirmizi); }
-        .chart-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        #loading { text-align: center; padding: 50px; font-size: 1.1em; color: var(--ikincil-yazi); }
-        
-        /* DEĞİŞİKLİK BURADA: GRAFİKLERİ KONTROL ALTINDA TUTAN SINIF */
+        .profit::before { content: '▲ '; }
+        .loss::before { content: '▼ '; }
+
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+        .kpi-value {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .chart-container { 
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
         .chart-wrapper {
             position: relative;
-            height: 350px; /* Grafiğin yüksekliğini sabitler */
+            height: 350px;
             width: 100%;
         }
 
-        @media (max-width: 768px) {
-            .chart-container { grid-template-columns: 1fr; }
-            .header-bar { padding: 16px; margin-bottom: 24px; }
+        #loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: var(--ikincil-yazi);
         }
-
+        
+        @media (max-width: 992px) {
+            .chart-container { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .header-bar { padding: 16px; margin-bottom: 24px; }
+            td, th { padding: 12px 8px; }
+            h1 { font-size: 1.4em; }
+            h2 { font-size: 1.2em; }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <header class="header-bar"><h1>Portföy Paneli</h1></header>
+    <header class="header-bar"><h1>Portföy Gösterge Paneli</h1></header>
 
     <main class="main-container">
-        <div class="card">
+        <div class="kpi-container">
+            <div class="card" style="animation-delay: 0.1s;">
+                <h2>Toplam Varlık</h2>
+                <p id="toplam-varlik" class="kpi-value">Yükleniyor...</p>
+            </div>
+            <div class="card" style="animation-delay: 0.2s;">
+                <h2>Toplam Kar/Zarar</h2>
+                <p id="toplam-kar-zarar" class="kpi-value">Yükleniyor...</p>
+            </div>
+        </div>
+
+        <div class="card" style="animation-delay: 0.3s;">
             <h2>Portföy Özeti</h2>
             <div id="loading">Veriler yükleniyor...</div>
             <table id="ozet-tablosu" style="display:none;">
@@ -69,33 +185,82 @@
         </div>
 
         <div class="chart-container">
-            <div class="card">
+            <div class="card" style="animation-delay: 0.4s;">
                 <h2>Portföy Dağılımı</h2>
-                <div class="chart-wrapper">
-                    <canvas id="pastaGrafik"></canvas>
-                </div>
+                <div class="chart-wrapper"><canvas id="pastaGrafik"></canvas></div>
             </div>
-            <div class="card">
+            <div class="card" style="animation-delay: 0.5s;">
                 <h2>Fonların Güncel Değerleri</h2>
-                <div class="chart-wrapper">
-                    <canvas id="sutunGrafik"></canvas>
-                </div>
+                <div class="chart-wrapper"><canvas id="sutunGrafik"></canvas></div>
             </div>
         </div>
     </main>
 
     <script>
-        const aPiUrl = 'https://script.google.com/macros/s/AKfycbyasF5oSTfrg7dgTPdkqrbA_mCuUNEbaxoTGClYa_2qLDHoDoB4Ka84EzMQileLHdGA/exec'; // LÜTFEN KENDİ GOOGLE APPS SCRIPT URL'NİZİ BURAYA YAPIŞTIRIN
+        // URL'niz doğrudan koda eklendi.
+        const aPiUrl = 'https://script.google.com/macros/s/AKfycbyasF5oSTfrg7dgTPdkqrbA_mCuUNEbaxoTGClYa_2qLDHoDoB4Ka84EzMQileLHdGA/exec';
 
-        // JavaScript kodunda değişiklik yok, öncekiyle aynı
+        // --- Sayı Biçimlendirme Fonksiyonları ---
         function formatCurrency(v){const n=parseFloat(v.toString().replace(/\./g,'').replace(',','.'));return isNaN(n)?"-":new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY'}).format(n)}
         function formatPercentage(v){const n=parseFloat(v.toString().replace(',','.'));return isNaN(n)?"-":'%'+n.toFixed(2).replace('.',',')}
-        fetch(aPiUrl).then(r=>r.json()).then(d=>{if(d.hata){document.getElementById('loading').textContent="API Hatası: "+d.hata;return}
-        document.getElementById('loading').style.display='none';document.getElementById('ozet-tablosu').style.display='table';const t=document.getElementById('ozet-tablosu-body');
-        d.ozetTablosu.forEach(r=>{let e=t.insertRow();e.insertCell().innerHTML=`<span class="fon-kodu">${r[0]}</span>`;e.insertCell().textContent=formatCurrency(r[1]);e.insertCell().textContent=formatCurrency(r[3]);
-        let a=e.insertCell();a.textContent=formatCurrency(r[2]);let n=e.insertCell();n.textContent=formatPercentage(r[4]);const o=parseFloat(r[2].replace(/\./g,'').replace(',','.'));o>0?(a.classList.add('profit'),n.classList.add('profit')):o<0&&(a.classList.add('loss'),n.classList.add('loss'))});
-        new Chart(document.getElementById('pastaGrafik'),{type:'doughnut',data:{labels:d.ozetTablosu.map(r=>r[0]),datasets:[{data:d.ozetTablosu.map(r=>parseFloat(r[1].replace(/\./g,'').replace(',','.'))),backgroundColor:['#4a6cf7','#ff8c3c','#28a745','#dc3545','#6c757d'],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:'bottom'}}}});
-        new Chart(document.getElementById('sutunGrafik'),{type:'bar',data:{labels:d.ozetTablosu.map(r=>r[0]),datasets:[{label:'Güncel Değer (TL)',data:d.ozetTablosu.map(r=>parseFloat(r[1].replace(/\./g,'').replace(',','.'))),backgroundColor:'rgba(74, 108, 247, 0.8)',borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0}}}})}).catch(e=>{document.getElementById('loading').textContent="Veri çekilirken kritik bir hata oluştu: "+e});
+
+        fetch(aPiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if(data.hata){
+                    document.getElementById('loading').textContent = "API Hatası: " + data.hata;
+                    return;
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('ozet-tablosu').style.display = 'table';
+                
+                let toplamVarlik = 0;
+                let toplamKarZarar = 0;
+
+                const ozetBody = document.getElementById('ozet-tablosu-body');
+                data.ozetTablosu.forEach(row => {
+                    let tr = ozetBody.insertRow();
+                    
+                    tr.insertCell().innerHTML = `<span class="fon-kodu">${row[0]}</span>`;
+                    tr.insertCell().textContent = formatCurrency(row[1]);
+                    tr.insertCell().textContent = formatCurrency(row[3]);
+                    
+                    let karZararTLCell = tr.insertCell();
+                    karZararTLCell.textContent = formatCurrency(row[2]);
+                    
+                    let karZararYuzdeCell = tr.insertCell();
+                    karZararYuzdeCell.textContent = formatPercentage(row[4]);
+
+                    const guncelDegerSayisal = parseFloat(row[1].replace(/\./g, '').replace(',', '.'));
+                    const kzSayisal = parseFloat(row[2].replace(/\./g, '').replace(',', '.'));
+                    
+                    toplamVarlik += guncelDegerSayisal;
+                    toplamKarZarar += kzSayisal;
+                    
+                    if (kzSayisal > 0) {
+                        karZararTLCell.classList.add('profit');
+                        karZararYuzdeCell.classList.add('profit');
+                    } else if (kzSayisal < 0) {
+                        karZararTLCell.classList.add('loss');
+                        karZararYuzdeCell.classList.add('loss');
+                    }
+                });
+
+                // Üstteki KPI Kartlarını Doldur
+                document.getElementById('toplam-varlik').textContent = formatCurrency(toplamVarlik);
+                const toplamKarZararP = document.getElementById('toplam-kar-zarar');
+                toplamKarZararP.textContent = formatCurrency(toplamKarZarar);
+                if (toplamKarZarar > 0) toplamKarZararP.classList.add('profit');
+                else if (toplamKarZarar < 0) toplamKarZararP.classList.add('loss');
+
+                // Grafikler
+                new Chart(document.getElementById('pastaGrafik'), {type:'doughnut',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{data:data.ozetTablosu.map(r=>parseFloat(r[1].replace(/\./g,'').replace(',','.'))),backgroundColor:['#4a6cf7','#ff8c3c','#28a745','#dc3545','#6c757d'],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:'bottom'}}}});
+                new Chart(document.getElementById('sutunGrafik'), {type:'bar',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{label:'Güncel Değer (TL)',data:data.ozetTablosu.map(r=>parseFloat(r[1].replace(/\./g,'').replace(',','.'))),backgroundColor:'rgba(74, 108, 247, 0.8)',borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0}}}});
+            })
+            .catch(error => {
+                document.getElementById('loading').textContent = "Veri çekilirken kritik bir hata oluştu: " + error;
+            });
     </script>
 </body>
 </html>
