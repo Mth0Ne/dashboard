@@ -28,6 +28,7 @@
         thead th { color: var(--ikincil-yazi); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.75px; }
         tbody tr:last-child td { border-bottom: none; }
         .fon-kodu { font-weight: 700; font-size: 1.05em; }
+        /* DEĞİŞİKLİK: Simge kodları kaldırıldı, sadece renkler kaldı */
         .profit { color: var(--yesil); } 
         .loss { color: var(--kirmizi); }
         .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
@@ -100,36 +101,39 @@
                 
                 data.ozetTablosu.forEach(row=>{
                     let tr=ozetBody.insertRow();
-                    
                     const [fonKodu, gunlukDegisim, guncelDeger, toplamKZ_TL, toplamMaliyet, toplamKZ_Yuzde] = row;
 
-                    // Hücreleri oluştur ve mobil için başlıkları ekle
-                    const fonKoduCell = tr.insertCell(); fonKoduCell.setAttribute('data-label', headers[0]);
-                    const gunlukDegisimCell = tr.insertCell(); gunlukDegisimCell.setAttribute('data-label', headers[1]);
-                    const guncelDegerCell = tr.insertCell(); guncelDegerCell.setAttribute('data-label', headers[2]);
-                    const maliyetCell = tr.insertCell(); maliyetCell.setAttribute('data-label', headers[3]);
-                    const karZararTLCell = tr.insertCell(); karZararTLCell.setAttribute('data-label', headers[4]);
-                    const karZararYuzdeCell = tr.insertCell(); karZararYuzdeCell.setAttribute('data-label', headers[5]);
+                    const fonKoduCell=tr.insertCell();fonKoduCell.setAttribute('data-label',headers[0]);
+                    const gunlukDegisimCell=tr.insertCell();gunlukDegisimCell.setAttribute('data-label',headers[1]);
+                    const guncelDegerCell=tr.insertCell();guncelDegerCell.setAttribute('data-label',headers[2]);
+                    const maliyetCell=tr.insertCell();maliyetCell.setAttribute('data-label',headers[3]);
+                    const karZararTLCell=tr.insertCell();karZararTLCell.setAttribute('data-label',headers[4]);
+                    const karZararYuzdeCell=tr.insertCell();karZararYuzdeCell.setAttribute('data-label',headers[5]);
 
-                    // Hücre içeriklerini ve stillerini ata
-                    fonKoduCell.innerHTML = `<span class="fon-kodu">${fonKodu}</span>`;
-                    guncelDegerCell.textContent = formatCurrency(guncelDeger);
-                    maliyetCell.textContent = formatCurrency(toplamMaliyet);
+                    fonKoduCell.innerHTML=`<span class="fon-kodu">${fonKodu}</span>`;
+                    guncelDegerCell.textContent=formatCurrency(guncelDeger);
+                    maliyetCell.textContent=formatCurrency(toplamMaliyet);
+                    
+                    // DEĞİŞİKLİK: Tüm simgeler ve renkler artık JavaScript ile yönetiliyor
+                    let gunlukDegisimFormatted=formatPercentage(gunlukDegisim);
+                    if(gunlukDegisim > 0){gunlukDegisimCell.textContent='▲ '+gunlukDegisimFormatted;gunlukDegisimCell.classList.add('profit');}
+                    else if(gunlukDegisim < 0){gunlukDegisimCell.textContent='▼ '+gunlukDegisimFormatted;gunlukDegisimCell.classList.add('loss');}
+                    else{gunlukDegisimCell.textContent=gunlukDegisimFormatted;}
 
-                    // GÜNLÜK DEĞİŞİM DÜZELTMESİ
-                    gunlukDegisimCell.textContent = formatPercentage(gunlukDegisim);
-                    if (gunlukDegisim > 0) { gunlukDegisimCell.classList.add('profit'); gunlukDegisimCell.textContent = '▲ ' + gunlukDegisimCell.textContent; } 
-                    else if (gunlukDegisim < 0) { gunlukDegisimCell.classList.add('loss'); gunlukDegisimCell.textContent = '▼ ' + gunlukDegisimCell.textContent; }
-
-                    // TOPLAM K/Z DÜZELTMESİ
-                    karZararTLCell.textContent = formatCurrency(toplamKZ_TL);
-                    karZararYuzdeCell.textContent = formatPercentage(toplamKZ_Yuzde);
-                    if (toplamKZ_TL > 0) { karZararTLCell.classList.add('profit'); karZararTLCell.textContent = '▲ ' + karZararTLCell.textContent; karZararYuzdeCell.classList.add('profit'); } 
-                    else if (toplamKZ_TL < 0) { karZararTLCell.classList.add('loss'); karZararTLCell.textContent = '▼ ' + karZararTLCell.textContent; karZararYuzdeCell.classList.add('loss'); }
-
-                    // Toplamları hesapla
-                    toplamVarlik += guncelDeger;
-                    toplamKarZarar += toplamKZ_TL;
+                    let kzTlFormatted=formatCurrency(toplamKZ_TL);
+                    let kzYuzdeFormatted=formatPercentage(toplamKZ_Yuzde);
+                    if(toplamKZ_TL > 0){
+                        karZararTLCell.textContent='▲ '+kzTlFormatted;karZararTLCell.classList.add('profit');
+                        karZararYuzdeCell.textContent=kzYuzdeFormatted;karZararYuzdeCell.classList.add('profit');
+                    } else if(toplamKZ_TL < 0){
+                        karZararTLCell.textContent='▼ '+kzTlFormatted;karZararTLCell.classList.add('loss');
+                        karZararYuzdeCell.textContent=kzYuzdeFormatted;karZararYuzdeCell.classList.add('loss');
+                    } else {
+                        karZararTLCell.textContent=kzTlFormatted;
+                        karZararYuzdeCell.textContent=kzYuzdeFormatted;
+                    }
+                    
+                    toplamVarlik+=guncelDeger;toplamKarZarar+=toplamKZ_TL;
                 });
 
                 document.getElementById('toplam-varlik').textContent=formatCurrency(toplamVarlik);const t=document.getElementById('toplam-kar-zarar');t.textContent=formatCurrency(toplamKarZarar);
