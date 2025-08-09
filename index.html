@@ -5,71 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portföy Gösterge Paneli</title>
     <style>
-        /* Sayfanın temel stilleri */
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
-            background-color: #f4f4f9; 
-            color: #333; 
-            margin: 0; 
-            padding: 20px; 
-            display: flex;
-            justify-content: center;
-        }
-        .container { 
-            width: 100%;
-            max-width: 1200px; 
-            margin: auto; 
-            background: #fff; 
-            padding: 20px; 
-            border-radius: 8px; 
-            box-shadow: 0 0 15px rgba(0,0,0,0.05); 
-        }
-        h1, h2 { 
-            color: #444; 
-            text-align: center; 
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-        h2 {
-             margin-top: 40px;
-        }
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-bottom: 20px; 
-        }
-        th, td { 
-            padding: 12px 15px; 
-            border: 1px solid #ddd; 
-            text-align: left; 
-        }
-        th { 
-            background-color: #f2f2f2; 
-            font-weight: 600;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        .chart-container { 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: space-around; 
-            gap: 20px; 
-            margin-top: 20px;
-        }
-        .chart { 
-            flex: 1; 
-            min-width: 300px; 
-            max-width: 100%; /* Mobil uyum için */
-        }
-        /* Yükleniyor animasyonu */
-        #loading {
-            text-align: center;
-            padding: 50px;
-            font-size: 1.2em;
-            color: #888;
-        }
+        /* CSS stillerinde değişiklik yok */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 1200px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+        h1, h2 { color: #444; text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        h2 { margin-top: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 12px 15px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; font-weight: 600; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .chart-container { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 20px; margin-top: 20px; }
+        .chart { flex: 1; min-width: 300px; max-width: 100%; }
+        #loading { text-align: center; padding: 50px; font-size: 1.2em; color: #888; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -99,34 +46,26 @@
                 <canvas id="pastaGrafik"></canvas>
             </div>
             <div class="chart">
-                <h2>Toplam Varlıkların Gelişimi</h2>
-                <canvas id="cizgiGrafik"></canvas>
+                <h2>Fonların Güncel Değerleri (TL)</h2>
+                <canvas id="sutunGrafik"></canvas>
             </div>
         </div>
     </div>
 
     <script>
-        // LÜTFEN BU SATIRI KENDİ GOOGLE APPS SCRIPT URL'NİZ İLE DEĞİŞTİRİN
-        const aPiUrl = 'https://script.google.com/macros/s/AKfycbzsh57r6-rSw5IW_2rugPxElCxukkvaEHFsohTqsMZwom_ODa6Jo76F2gMRIIxCSEtZ/exec'; 
+        const aPiUrl = 'https://script.google.com/macros/s/AKfycbyasF5oSTfrg7dgTPdkqrbA_mCuUNEbaxoTGClYa_2qLDHoDoB4Ka84EzMQileLHdGA/exec'; // LÜTFEN KENDİ GOOGLE APPS SCRIPT URL'NİZİ BURAYA YAPIŞTIRIN
 
         const loadingDiv = document.getElementById('loading');
         const table = document.getElementById('ozet-tablosu');
 
         fetch(aPiUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if(data.hata){
                     loadingDiv.textContent = "API Hatası: " + data.hata;
-                    console.error("API Hatası:", data.hata);
                     return;
                 }
 
-                // Veri geldiyse yükleniyor yazısını gizle, tabloyu göster
                 loadingDiv.style.display = 'none';
                 table.style.display = 'table';
 
@@ -134,11 +73,9 @@
                 const ozetBody = document.getElementById('ozet-tablosu-body');
                 data.ozetTablosu.forEach(row => {
                     let tr = ozetBody.insertRow();
-                    tr.insertCell().textContent = row[0]; // Fon Kodu
-                    tr.insertCell().textContent = row[1]; // Güncel Değer
-                    tr.insertCell().textContent = row[2]; // Toplam K/Z (TL)
-                    tr.insertCell().textContent = row[3]; // Toplam Maliyet
-                    tr.insertCell().textContent = row[4]; // Toplam K/Z (%)
+                    tr.insertCell().textContent = row[0]; tr.insertCell().textContent = row[1];
+                    tr.insertCell().textContent = row[2]; tr.insertCell().textContent = row[3];
+                    tr.insertCell().textContent = row[4];
                 });
 
                 // 2. Pasta Grafiği Oluşturma
@@ -153,21 +90,39 @@
                     options: { responsive: true }
                 });
 
-                // 3. Çizgi Grafiği Oluşturma
-                const tarihselVeri = data.tarihselVeri.slice(1); // Başlık satırını atla
-                new Chart(document.getElementById('cizgiGrafik'), {
-                    type: 'line',
+                // DEĞİŞİKLİK 2: ÇİZGİ GRAFİK YERİNE SÜTUN GRAFİK OLUŞTURUYORUZ
+                new Chart(document.getElementById('sutunGrafik'), {
+                    type: 'bar', // Grafik türünü 'bar' (sütun) olarak değiştirdik
                     data: {
-                        labels: tarihselVeri.map(row => row[0]),
+                        labels: data.ozetTablosu.map(row => row[0]), // X ekseni: Fon Kodları
                         datasets: [{
-                            label: 'Toplam Portföy Değeri (TL)',
-                            data: tarihselVeri.map(row => parseFloat(row[1].replace(/\./g, '').replace(',', '.'))),
-                            fill: false,
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1
+                            label: 'Güncel Değer (TL)',
+                            data: data.ozetTablosu.map(row => parseFloat(row[1].replace(/\./g, '').replace(',', '.'))), // Y ekseni: Güncel Değerler
+                            backgroundColor: [ // Her sütun için farklı renkler
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(255, 206, 86, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(153, 102, 255, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)'
+                            ],
+                            borderWidth: 1
                         }]
                     },
-                    options: { responsive: true }
+                    options: { 
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false // Grafik üzerindeki 'Güncel Değer (TL)' etiketini gizle
+                            }
+                        }
+                    }
                 });
             })
             .catch(error => {
