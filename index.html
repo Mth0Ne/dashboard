@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portföy Gösterge Paneli</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        /* Stil kodlarında değişiklik yok */
+        /* Tasarım stillerinde değişiklik yok */
         :root { --arkaplan: #f7f8fc; --kart-arkaplan: #ffffff; --golge: rgba(108, 114, 147, 0.1); --ana-yazi: #1e2022; --ikincil-yazi: #6c757d; --vurgu-rengi: #4a6cf7; --yesil: #198754; --kirmizi: #dc3545; --border-rengi: #e9ecef; }
         body { font-family: 'Inter', sans-serif; background-color: var(--arkaplan); color: var(--ana-yazi); margin: 0; padding: 0; }
         .header-bar { background-color: var(--kart-arkaplan); padding: 20px 32px; border-bottom: 1px solid var(--border-rengi); margin-bottom: 32px; animation: fadeIn 0.5s ease-out; }
@@ -49,7 +51,8 @@
                 <thead>
                     <tr>
                         <th>Fon Kodu</th>
-                        <th>Günlük Değişim</th> <th>Güncel Değer</th>
+                        <th>Günlük Değişim</th>
+                        <th>Güncel Değer</th>
                         <th>Toplam Maliyet</th>
                         <th>Toplam K/Z (TL)</th>
                         <th>Toplam K/Z (%)</th>
@@ -72,52 +75,40 @@
         fetch(aPiUrl).then(response => response.json()).then(data => {
             if(data.hata){document.getElementById('loading').textContent = "API Hatası: " + data.hata; return;}
             document.getElementById('loading').style.display = 'none'; document.getElementById('ozet-tablosu').style.display = 'table';
-
+            
             let toplamVarlik = 0, toplamKarZarar = 0;
             const ozetBody = document.getElementById('ozet-tablosu-body');
-
+            
+            // DÜZELTME: Bu bölüm, 6 sütunlu yeni veri yapısını doğru okuyacak şekilde güncellendi
             data.ozetTablosu.forEach(row => {
+                // Gelen veri sırası: [0:Kod, 1:Günlük Değişim, 2:Güncel Değer, 3:K/Z TL, 4:Maliyet, 5:K/Z %]
                 let tr = ozetBody.insertRow();
-
-                // DEĞİŞİKLİK: YENİ SÜTUNU EKLİYORUZ
-                tr.insertCell().innerHTML = `<span class="fon-kodu">${row[0]}</span>`; // Fon Kodu
+                
+                tr.insertCell().innerHTML = `<span class="fon-kodu">${row[0]}</span>`;
 
                 let gunlukDegisimCell = tr.insertCell();
-                gunlukDegisimCell.textContent = row[1]; // Günlük Değişim
+                gunlukDegisimCell.textContent = row[1];
                 const degisimSayisal = parseFloat(row[1].replace('%','').replace(',','.'));
                 if (degisimSayisal > 0) gunlukDegisimCell.classList.add('profit');
                 else if (degisimSayisal < 0) gunlukDegisimCell.classList.add('loss');
 
                 tr.insertCell().textContent = formatCurrency(row[2]); // Güncel Değer
                 tr.insertCell().textContent = formatCurrency(row[4]); // Toplam Maliyet
-
+                
                 let karZararTLCell = tr.insertCell();
                 karZararTLCell.textContent = formatCurrency(row[3]); // Toplam K/Z (TL)
-
+                
                 let karZararYuzdeCell = tr.insertCell();
                 karZararYuzdeCell.textContent = formatPercentage(row[5]); // Toplam K/Z (%)
 
                 const guncelDegerSayisal = parseFloat(row[2].replace(/\./g, '').replace(',', '.'));
                 const kzSayisal = parseFloat(row[3].replace(/\./g, '').replace(',', '.'));
-
+                
                 toplamVarlik += guncelDegerSayisal;
                 toplamKarZarar += kzSayisal;
-
+                
                 if (kzSayisal > 0) { karZararTLCell.classList.add('profit'); karZararYuzdeCell.classList.add('profit'); } 
                 else if (kzSayisal < 0) { karZararTLCell.classList.add('loss'); karZararYuzdeCell.classList.add('loss'); }
             });
 
             document.getElementById('toplam-varlik').textContent = formatCurrency(toplamVarlik);
-            const toplamKarZararP = document.getElementById('toplam-kar-zarar');
-            toplamKarZararP.textContent = formatCurrency(toplamKarZarar);
-            if (toplamKarZarar > 0) toplamKarZararP.classList.add('profit');
-            else if (toplamKarZarar < 0) toplamKarZararP.classList.add('loss');
-
-            // Grafiklerin kullandığı veri sütunları değiştiği için güncellendi
-            new Chart(document.getElementById('pastaGrafik'), {type:'doughnut',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{data:data.ozetTablosu.map(r=>parseFloat(r[2].replace(/\./g,'').replace(',','.'))),backgroundColor:['#4a6cf7','#ff8c3c','#28a745','#dc3545','#6c757d'],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:'bottom'}}}});
-            new Chart(document.getElementById('sutunGrafik'), {type:'bar',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{label:'Güncel Değer (TL)',data:data.ozetTablosu.map(r=>parseFloat(r[2].replace(/\./g,'').replace(',','.'))),backgroundColor:'rgba(74, 108, 247, 0.8)',borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0}}}});
-
-        }).catch(error => { document.getElementById('loading').textContent = "Veri çekilirken kritik bir hata oluştu: " + error; });
-    </script>
-</body>
-</html>
