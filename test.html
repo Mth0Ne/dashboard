@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portföy Gösterge Paneli</title>
+    <style>
+        /* CSS stillerinde değişiklik yok, öncekiyle aynı */
+        body { font-family: sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
+        h1, h2 { color: #444; text-align: center; }
+        .container { max-width: 1200px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #eef; }
+        .chart-container { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 20px; }
+        .chart { flex: 1; min-width: 300px; max-width: 600px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Portföy Gösterge Paneli</h1>
+        
+        <h2>Özet Tablo</h2>
+        <table id="ozet-tablosu">
+            <thead>
+                <tr>
+                    <th>Fon Kodu</th>
+                    <th>Güncel Değer</th>
+                    <th>Toplam K/Z (TL)</th>
+                    <th>Toplam Maliyet</th>
+                    <th>Toplam K/Z (%)</th>
+                </tr>
+            </thead>
+            <tbody id="ozet-tablosu-body">
+                </tbody>
+        </table>
+
+        <div class="chart-container">
+            <div class="chart">
+                <h2>Portföy Dağılımı</h2>
+                <canvas id="pastaGrafik"></canvas>
+            </div>
+            <div class="chart">
+                <h2>Toplam Varlıkların Gelişimi</h2>
+                <canvas id="cizgiGrafik"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const aPiUrl = 'https://script.google.com/macros/s/AKfycbyFqPc2oUHUhohScG1CgTrdoDsEtR8Pm56l0J6rMe3GFIj7tx-ywWYiqfcJnPDm1wrp/exec'; // Dağıtımdan sonra aldığınız yeni URL
+
+        fetch(aPiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if(data.hata){
+                    console.error("API Hatası:", data.hata);
+                    return;
+                }
+
+                // 1. Özet Tabloyu Doldurma
+                const ozetBody = document.getElementById('ozet-tablosu-body');
+                data.ozetTablosu.forEach(row => {
+                    let tr = ozetBody.insertRow();
+                    tr.insertCell().textContent = row[0]; // Fon Kodu
+                    tr.insertCell().textContent = row[1]; // Güncel Değer
+                    tr.insertCell().textContent = row[2]; // Toplam K/Z (TL)
+                    tr.insertCell().textContent = row[3]; // Toplam Maliyet
+                    tr.insertCell().textContent = row[4]; // Toplam K/Z (%)
+                });
+
+                // 2. Pasta Grafiği Oluşturma
+                new Chart(document.getElementById('pastaGrafik'), {
+                    type: 'pie',
+                    data: {
+                        labels: data.ozetTablosu.map(row => row[0]),
+                        datasets: [{
+                            data: data.ozetTablosu.map(row => parseFloat(row[1].replace(/\./g, '').replace(',', '.'))),
+                        }]
+                    }
+                });
+
+                // 3. Çizgi Grafiği Oluşturma
+                const tarihselVeri = data.tarihselVeri.slice(1); // Başlık satırını atla
+                new Chart(document.getElementById('cizgiGrafik'), {
+                    type: 'line',
+                    data: {
+                        labels: tarihselVeri.map(row => row[0]),
+                        datasets: [{
+                            label: 'Toplam Portföy Değeri (TL)',
+                            data: tarihselVeri.map(row => parseFloat(row[1].replace(/\./g, '').replace(',', '.'))),
+                            fill: false,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    }
+                });
+            })
+            .catch(error => console.error('Veri çekilirken hata oluştu:', error));
+    </script>
+</body>
+</html>
