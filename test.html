@@ -5,15 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portföy Gösterge Paneli</title>
     <style>
-        /* CSS stillerinde değişiklik yok, öncekiyle aynı */
-        body { font-family: sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
-        h1, h2 { color: #444; text-align: center; }
-        .container { max-width: 1200px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #eef; }
-        .chart-container { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 20px; }
-        .chart { flex: 1; min-width: 300px; max-width: 600px; }
+        /* Sayfanın temel stilleri */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+            background-color: #f4f4f9; 
+            color: #333; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex;
+            justify-content: center;
+        }
+        .container { 
+            width: 100%;
+            max-width: 1200px; 
+            margin: auto; 
+            background: #fff; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.05); 
+        }
+        h1, h2 { 
+            color: #444; 
+            text-align: center; 
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        h2 {
+             margin-top: 40px;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 20px; 
+        }
+        th, td { 
+            padding: 12px 15px; 
+            border: 1px solid #ddd; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #f2f2f2; 
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .chart-container { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: space-around; 
+            gap: 20px; 
+            margin-top: 20px;
+        }
+        .chart { 
+            flex: 1; 
+            min-width: 300px; 
+            max-width: 100%; /* Mobil uyum için */
+        }
+        /* Yükleniyor animasyonu */
+        #loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #888;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -22,7 +78,8 @@
         <h1>Portföy Gösterge Paneli</h1>
         
         <h2>Özet Tablo</h2>
-        <table id="ozet-tablosu">
+        <div id="loading">Veriler yükleniyor...</div>
+        <table id="ozet-tablosu" style="display:none;">
             <thead>
                 <tr>
                     <th>Fon Kodu</th>
@@ -49,15 +106,29 @@
     </div>
 
     <script>
-        const aPiUrl = 'https://script.google.com/macros/s/AKfycbzsh57r6-rSw5IW_2rugPxElCxukkvaEHFsohTqsMZwom_ODa6Jo76F2gMRIIxCSEtZ/exec'; // Dağıtımdan sonra aldığınız yeni URL
+        // LÜTFEN BU SATIRI KENDİ GOOGLE APPS SCRIPT URL'NİZ İLE DEĞİŞTİRİN
+        const aPiUrl = 'https://script.google.com/macros/s/AKfycbzsh57r6-rSw5IW_2rugPxElCxukkvaEHFsohTqsMZwom_ODa6Jo76F2gMRIIxCSEtZ/exec'; 
+
+        const loadingDiv = document.getElementById('loading');
+        const table = document.getElementById('ozet-tablosu');
 
         fetch(aPiUrl)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
             .then(data => {
                 if(data.hata){
+                    loadingDiv.textContent = "API Hatası: " + data.hata;
                     console.error("API Hatası:", data.hata);
                     return;
                 }
+
+                // Veri geldiyse yükleniyor yazısını gizle, tabloyu göster
+                loadingDiv.style.display = 'none';
+                table.style.display = 'table';
 
                 // 1. Özet Tabloyu Doldurma
                 const ozetBody = document.getElementById('ozet-tablosu-body');
@@ -78,7 +149,8 @@
                         datasets: [{
                             data: data.ozetTablosu.map(row => parseFloat(row[1].replace(/\./g, '').replace(',', '.'))),
                         }]
-                    }
+                    },
+                    options: { responsive: true }
                 });
 
                 // 3. Çizgi Grafiği Oluşturma
@@ -94,11 +166,14 @@
                             borderColor: 'rgb(75, 192, 192)',
                             tension: 0.1
                         }]
-                    }
+                    },
+                    options: { responsive: true }
                 });
             })
-            .catch(error => console.error('Veri çekilirken hata oluştu:', error));
+            .catch(error => {
+                loadingDiv.textContent = "Veri çekilirken kritik bir hata oluştu. Lütfen Console'u kontrol edin.";
+                console.error('Veri çekilirken hata oluştu:', error);
+            });
     </script>
 </body>
-
 </html>
