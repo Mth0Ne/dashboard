@@ -10,11 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --arkaplan: #f7f8fc; --kart-arkaplan: #ffffff; --golge: rgba(108, 114, 147, 0.1); 
-            --ana-yazi: #1e2022; --ikincil-yazi: #6c757d; --vurgu-rengi: #4a6cf7; 
-            --yesil: #198754; --kirmizi: #dc3545; --border-rengi: #e9ecef;
-        }
+        /* Tasarım stillerinde değişiklik yok */
+        :root { --arkaplan: #f7f8fc; --kart-arkaplan: #ffffff; --golge: rgba(108, 114, 147, 0.1); --ana-yazi: #1e2022; --ikincil-yazi: #6c757d; --vurgu-rengi: #4a6cf7; --yesil: #198754; --kirmizi: #dc3545; --border-rengi: #e9ecef; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         body { font-family: 'Inter', sans-serif; background-color: var(--arkaplan); color: var(--ana-yazi); margin: 0; padding: 0; }
         .header-bar { background-color: var(--kart-arkaplan); padding: 20px 32px; border-bottom: 1px solid var(--border-rengi); margin-bottom: 32px; animation: fadeIn 0.5s ease-out; }
@@ -28,7 +25,6 @@
         thead th { color: var(--ikincil-yazi); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.75px; }
         tbody tr:last-child td { border-bottom: none; }
         .fon-kodu { font-weight: 700; font-size: 1.05em; }
-        /* DEĞİŞİKLİK: Simge kodları kaldırıldı, sadece renkler kaldı */
         .profit { color: var(--yesil); } 
         .loss { color: var(--kirmizi); }
         .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
@@ -114,23 +110,28 @@
                     guncelDegerCell.textContent=formatCurrency(guncelDeger);
                     maliyetCell.textContent=formatCurrency(toplamMaliyet);
                     
-                    // DEĞİŞİKLİK: Tüm simgeler ve renkler artık JavaScript ile yönetiliyor
-                    let gunlukDegisimFormatted=formatPercentage(gunlukDegisim);
-                    if(gunlukDegisim > 0){gunlukDegisimCell.textContent='▲ '+gunlukDegisimFormatted;gunlukDegisimCell.classList.add('profit');}
-                    else if(gunlukDegisim < 0){gunlukDegisimCell.textContent='▼ '+gunlukDegisimFormatted;gunlukDegisimCell.classList.add('loss');}
-                    else{gunlukDegisimCell.textContent=gunlukDegisimFormatted;}
+                    // --- NİHAİ DÜZELTME BURADA ---
+                    // "Günlük Değişim" sütunu için gelen metni olduğu gibi kullanıyoruz.
+                    const gunlukDegisimStr = gunlukDegisim.toString();
+                    gunlukDegisimCell.textContent = gunlukDegisimStr;
+                    // Renk ve simge için metni sayıya çeviriyoruz
+                    const degisimSayisal = parseFloat(gunlukDegisimStr.replace('%','').replace(',','.'));
+                    if (degisimSayisal > 0) { gunlukDegisimCell.classList.add('profit'); gunlukDegisimCell.textContent = '▲ ' + gunlukDegisimCell.textContent; } 
+                    else if (degisimSayisal < 0) { gunlukDegisimCell.classList.add('loss'); gunlukDegisimCell.textContent = '▼ ' + gunlukDegisimCell.textContent; }
 
-                    let kzTlFormatted=formatCurrency(toplamKZ_TL);
-                    let kzYuzdeFormatted=formatPercentage(toplamKZ_Yuzde);
-                    if(toplamKZ_TL > 0){
-                        karZararTLCell.textContent='▲ '+kzTlFormatted;karZararTLCell.classList.add('profit');
-                        karZararYuzdeCell.textContent=kzYuzdeFormatted;karZararYuzdeCell.classList.add('profit');
-                    } else if(toplamKZ_TL < 0){
-                        karZararTLCell.textContent='▼ '+kzTlFormatted;karZararTLCell.classList.add('loss');
-                        karZararYuzdeCell.textContent=kzYuzdeFormatted;karZararYuzdeCell.classList.add('loss');
+                    // Diğer K/Z sütunları sayısal veri kullandığı için eski mantıkla devam ediyor
+                    karZararYuzdeCell.textContent = formatPercentage(toplamKZ_Yuzde);
+                    let kzTlFormatted = formatCurrency(toplamKZ_TL);
+                    if (toplamKZ_TL > 0) {
+                        karZararTLCell.textContent = '▲ ' + kzTlFormatted;
+                        karZararTLCell.classList.add('profit');
+                        karZararYuzdeCell.classList.add('profit');
+                    } else if (toplamKZ_TL < 0) {
+                        karZararTLCell.textContent = '▼ ' + kzTlFormatted;
+                        karZararTLCell.classList.add('loss');
+                        karZararYuzdeCell.classList.add('loss');
                     } else {
-                        karZararTLCell.textContent=kzTlFormatted;
-                        karZararYuzdeCell.textContent=kzYuzdeFormatted;
+                        karZararTLCell.textContent = kzTlFormatted;
                     }
                     
                     toplamVarlik+=guncelDeger;toplamKarZarar+=toplamKZ_TL;
@@ -139,7 +140,7 @@
                 document.getElementById('toplam-varlik').textContent=formatCurrency(toplamVarlik);const t=document.getElementById('toplam-kar-zarar');t.textContent=formatCurrency(toplamKarZarar);
                 if(toplamKarZarar>0)t.classList.add('profit');else if(toplamKarZarar<0)t.classList.add('loss');
                 
-                new Chart(document.getElementById('pastaGrafik'),{type:'doughnut',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{data:data.ozetTablosu.map(r=>r[2]),backgroundColor:['#4a6cf7','#ff8c3c','#28a745','#dc3545','#6c757d'],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:'bottom'}}}});
+                new Chart(document.getElementById('pastaGrafik'),{type:'doughnut',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{data:data.ozetTablosu.map(r=>r[2]),backgroundColor:['#4a6cf7','#ff8c3c','#28a555','#dc3545','#6c757d'],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:'bottom'}}}});
                 new Chart(document.getElementById('sutunGrafik'),{type:'bar',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{label:'Güncel Değer (TL)',data:data.ozetTablosu.map(r=>r[2]),backgroundColor:'rgba(74, 108, 247, 0.8)',borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0}}}});
             
             }).catch(error=>{document.getElementById('loading').textContent="Veri çekilirken kritik bir hata oluştu: "+error});
