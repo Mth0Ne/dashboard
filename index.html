@@ -1,77 +1,134 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Portföy Gösterge Paneli</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>:root{--arkaplan:#f7f8fc;--kart-arkaplan:#ffffff;--golge:rgba(108,114,147,0.1);--ana-yazi:#1e2022;--ikincil-yazi:#6c757d;--vurgu-rengi:#4a6cf7;--yesil:#198754;--kirmizi:#dc3545;--border-rengi:#e9ecef}body{font-family:'Inter',sans-serif;background-color:var(--arkaplan);color:var(--ana-yazi);margin:0;padding:0}.header-bar{background-color:var(--kart-arkaplan);padding:20px 32px;border-bottom:1px solid var(--border-rengi);margin-bottom:32px;animation:fadeIn .5s ease-out}.header-bar h1{font-size:1.6em;font-weight:700;margin:0;text-align:center}.main-container{max-width:1200px;margin:auto;padding:0 24px 24px;display:grid;gap:24px}.card{background:var(--kart-arkaplan);border-radius:16px;padding:24px 32px;box-shadow:0 6px 24px var(--golge);transition:transform .2s ease-in-out,box-shadow .2s ease-in-out;animation:fadeIn .5s ease-out forwards;opacity:0}.card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(108,114,147,.15)}h2{font-size:1.4em;font-weight:600;margin-top:0;margin-bottom:24px}table{width:100%;border-collapse:collapse}th,td{padding:18px 16px;text-align:left;border-bottom:1px solid var(--border-rengi);vertical-align:middle;font-size:1em;font-weight:500}thead th{color:var(--ikincil-yazi);font-weight:600;font-size:.85em;text-transform:uppercase;letter-spacing:.75px}tbody tr:last-child td{border-bottom:none}.fon-kodu{font-weight:700;font-size:1.05em}.profit{color:var(--yesil)}.loss{color:var(--kirmizi)}.profit::before{content:'▲ '}.loss::before{content:'▼ '}.kpi-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px}.kpi-value{font-size:2.2em;font-weight:700;margin:0}.chart-container{display:grid;grid-template-columns:1fr 1fr;gap:24px}.chart-wrapper{position:relative;height:350px;width:100%}#loading{text-align:center;padding:50px;font-size:1.2em;color:var(--ikincil-yazi)}@media (max-width:992px){.chart-container{grid-template-columns:1fr}}@media (max-width:768px){.header-bar{padding:16px;margin-bottom:24px}td,th{padding:12px 8px}h1{font-size:1.4em}h2{font-size:1.2em}}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}</style><script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portföy Gösterge Paneli</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* NİHAİ MOBİL UYUMLU TASARIM */
+        :root {
+            --arkaplan: #f7f8fc; --kart-arkaplan: #ffffff; --golge: rgba(108, 114, 147, 0.1); 
+            --ana-yazi: #1e2022; --ikincil-yazi: #6c757d; --vurgu-rengi: #4a6cf7; 
+            --yesil: #198754; --kirmizi: #dc3545; --border-rengi: #e9ecef;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { font-family: 'Inter', sans-serif; background-color: var(--arkaplan); color: var(--ana-yazi); margin: 0; padding: 0; }
+        .header-bar { background-color: var(--kart-arkaplan); padding: 20px 32px; border-bottom: 1px solid var(--border-rengi); margin-bottom: 32px; animation: fadeIn 0.5s ease-out; }
+        .header-bar h1 { font-size: 1.6em; font-weight: 700; margin: 0; text-align: center; }
+        .main-container { max-width: 1200px; margin: auto; padding: 0 24px 24px 24px; display: grid; gap: 24px; }
+        .card { background: var(--kart-arkaplan); border-radius: 16px; padding: 24px 32px; box-shadow: 0 6px 24px var(--golge); animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
+        h2 { font-size: 1.4em; font-weight: 600; margin-top: 0; margin-bottom: 24px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 18px 16px; text-align: left; border-bottom: 1px solid var(--border-rengi); vertical-align: middle; font-size: 1em; font-weight: 500; }
+        thead { border-bottom: 2px solid var(--border-rengi); }
+        thead th { color: var(--ikincil-yazi); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.75px; }
+        tbody tr:last-child td { border-bottom: none; }
+        .fon-kodu { font-weight: 700; font-size: 1.05em; }
+        .profit { color: var(--yesil); } .loss { color: var(--kirmizi); }
+        .profit::before { content: '▲ '; } .loss::before { content: '▼ '; }
+        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+        .kpi-value { font-size: 2.2em; font-weight: 700; margin: 0; }
+        .chart-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .chart-wrapper { position: relative; height: 350px; width: 100%; }
+        #loading { text-align: center; padding: 50px; font-size: 1.2em; color: var(--ikincil-yazi); }
+        
+        /* --- MOBİL UYUMLULUK KODLARI BURADA --- */
+        @media (max-width: 992px) {
+            .chart-container { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            body { padding: 0; }
+            .main-container { padding: 0 16px 16px 16px; }
+            .header-bar { padding: 16px; margin-bottom: 24px; border-radius: 0; }
+            td, th { padding: 12px 8px; font-size: 0.9em; }
+            h1 { font-size: 1.4em; }
+            h2 { font-size: 1.2em; }
+            .kpi-value { font-size: 1.8em; }
+            .card { padding: 16px; }
+
+            /* Tabloyu kart yapısına dönüştür */
+            thead { display: none; }
+            tr { display: block; border: 1px solid var(--border-rengi); border-radius: 8px; margin-bottom: 16px; padding: 8px; }
+            td { display: block; text-align: right; border-bottom: 1px solid #f2f2f2; position: relative; padding-left: 50%; }
+            td:last-child { border-bottom: 0; }
+            td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 8px;
+                width: calc(50% - 16px);
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 600;
+                color: var(--ikincil-yazi);
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header class="header-bar"><h1>Portföy Gösterge Paneli</h1></header>
     <main class="main-container">
-        <div class="kpi-container"><div class="card" style="animation-delay: 0.1s;"><h2>Toplam Varlık</h2><p id="toplam-varlik" class="kpi-value">Yükleniyor...</p></div><div class="card" style="animation-delay: 0.2s;"><h2>Toplam Kar/Zarar</h2><p id="toplam-kar-zarar" class="kpi-value">Yükleniyor...</p></div></div>
-        <div class="card" style="animation-delay: 0.3s;"><h2>Portföy Özeti</h2><div id="loading">Veriler yükleniyor...</div><table id="ozet-tablosu" style="display:none;"><thead><tr><th>Fon Kodu</th><th>Günlük Değişim</th><th>Güncel Değer</th><th>Toplam Maliyet</th><th>Toplam K/Z (TL)</th><th>Toplam K/Z (%)</th></tr></thead><tbody id="ozet-tablosu-body"></tbody></table></div>
-        <div class="chart-container"><div class="card" style="animation-delay: 0.4s;"><h2>Portföy Dağılımı</h2><div class="chart-wrapper"><canvas id="pastaGrafik"></canvas></div></div><div class="card" style="animation-delay: 0.5s;"><h2>Fonların Güncel Değerleri</h2><div class="chart-wrapper"><canvas id="sutunGrafik"></canvas></div></div></div>
+        <div class="kpi-container">
+            <div class="card" style="animation-delay: 0.1s;"><h2>Toplam Varlık</h2><p id="toplam-varlik" class="kpi-value">Yükleniyor...</p></div>
+            <div class="card" style="animation-delay: 0.2s;"><h2>Toplam Kar/Zarar</h2><p id="toplam-kar-zarar" class="kpi-value">Yükleniyor...</p></div>
+        </div>
+        <div class="card" style="animation-delay: 0.3s;">
+            <h2>Portföy Özeti</h2>
+            <div id="loading">Veriler yükleniyor...</div>
+            <table id="ozet-tablosu" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Fon Kodu</th>
+                        <th>Günlük Değişim</th>
+                        <th>Güncel Değer</th>
+                        <th>Toplam Maliyet</th>
+                        <th>Toplam K/Z (TL)</th>
+                        <th>Toplam K/Z (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="ozet-tablosu-body"></tbody>
+            </table>
+        </div>
+        <div class="chart-container">
+            <div class="card" style="animation-delay: 0.4s;"><h2>Portföy Dağılımı</h2><div class="chart-wrapper"><canvas id="pastaGrafik"></canvas></div></div>
+            <div class="card" style="animation-delay: 0.5s;"><h2>Fonların Güncel Değerleri</h2><div class="chart-wrapper"><canvas id="sutunGrafik"></canvas></div></div>
+        </div>
     </main>
-
     <script>
         const aPiUrl = 'https://script.google.com/macros/s/AKfycbwVYj8viYLwguWIRIsw0hiokQGbjKhRZ1e0vASd_bFnbakpYs4vcz3TvGw44p7BpVZx/exec';
 
-        // DEĞİŞİKLİK: Biçimlendirme fonksiyonları artık ham sayısal değerler alıyor
-        function formatCurrency(number) {
-            if (typeof number !== 'number' || isNaN(number)) return "-";
-            return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(number);
-        }
+        function formatCurrency(n){if(typeof n!=='number'||isNaN(n))return"-";return new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY'}).format(n)}
+        function formatPercentage(r){if(typeof r!=='number'||isNaN(r))return"-";return new Intl.NumberFormat('tr-TR',{style:'percent',minimumFractionDigits:2,maximumFractionDigits:2}).format(r)}
 
-        // DEĞİŞİKLİK: Gelen değer 0.0047 gibi bir oran olduğu için 100 ile çarpılarak yüzdeye çevriliyor
-        function formatPercentage(ratio) {
-            if (typeof ratio !== 'number' || isNaN(ratio)) return "-";
-            return new Intl.NumberFormat('tr-TR', { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(ratio);
-        }
-
-        fetch(aPiUrl).then(response => response.json()).then(data => {
-            if(data.hata){document.getElementById('loading').textContent = "API Hatası: " + data.hata; return;}
-            document.getElementById('loading').style.display = 'none'; document.getElementById('ozet-tablosu').style.display = 'table';
-
-            let toplamVarlik = 0, toplamKarZarar = 0;
-            const ozetBody = document.getElementById('ozet-tablosu-body');
-
-            // DEĞİŞİKLİK: Tüm 'row' elemanları artık metin değil, sayı.
-            data.ozetTablosu.forEach(row => {
-                let tr = ozetBody.insertRow();
-
-                tr.insertCell().innerHTML = `<span class="fon-kodu">${row[0]}</span>`;
-
-                let gunlukDegisimCell = tr.insertCell();
-                gunlukDegisimCell.textContent = formatPercentage(row[1]); // Günlük değişimi de yüzdeye çevir
-                if (row[1] > 0) gunlukDegisimCell.classList.add('profit');
-                else if (row[1] < 0) gunlukDegisimCell.classList.add('loss');
-
-                tr.insertCell().textContent = formatCurrency(row[2]);
-                tr.insertCell().textContent = formatCurrency(row[4]);
-
-                let karZararTLCell = tr.insertCell();
-                karZararTLCell.textContent = formatCurrency(row[3]);
-
-                let karZararYuzdeCell = tr.insertCell();
-                karZararYuzdeCell.textContent = formatPercentage(row[5]);
-
-                // Toplamları hesaplarken artık string ayıklamaya gerek yok
-                toplamVarlik += row[2];
-                toplamKarZarar += row[3];
-
-                if (row[3] > 0) { karZararTLCell.classList.add('profit'); karZararYuzdeCell.classList.add('profit'); } 
-                else if (row[3] < 0) { karZararTLCell.classList.add('loss'); karZararYuzdeCell.classList.add('loss'); }
+        fetch(aPiUrl).then(response=>response.json()).then(data=>{
+            if(data.hata){document.getElementById('loading').textContent="API Hatası: "+data.hata;return}
+            document.getElementById('loading').style.display='none';document.getElementById('ozet-tablosu').style.display='table';
+            let toplamVarlik=0,toplamKarZarar=0;const ozetBody=document.getElementById('ozet-tablosu-body');
+            data.ozetTablosu.forEach(row=>{
+                let tr=ozetBody.insertRow();
+                // MOBİL UYUM İÇİN DATA-LABEL EKLE
+                tr.insertCell().innerHTML=`<span class="fon-kodu">${row[0]}</span>`;
+                let gunlukDegisimCell=tr.insertCell();gunlukDegisimCell.setAttribute('data-label','Günlük Değişim');gunlukDegisimCell.textContent=formatPercentage(row[1]);
+                let guncelDegerCell=tr.insertCell();guncelDegerCell.setAttribute('data-label','Güncel Değer');guncelDegerCell.textContent=formatCurrency(row[2]);
+                let maliyetCell=tr.insertCell();maliyetCell.setAttribute('data-label','Toplam Maliyet');maliyetCell.textContent=formatCurrency(row[4]);
+                let karZararTLCell=tr.insertCell();karZararTLCell.setAttribute('data-label','Toplam K/Z (TL)');karZararTLCell.textContent=formatCurrency(row[3]);
+                let karZararYuzdeCell=tr.insertCell();karZararYuzdeCell.setAttribute('data-label','Toplam K/Z (%)');karZararYuzdeCell.textContent=formatPercentage(row[5]);
+                
+                if(row[1]>0)gunlukDegisimCell.classList.add('profit');else if(row[1]<0)gunlukDegisimCell.classList.add('loss');
+                toplamVarlik+=row[2];toplamKarZarar+=row[3];
+                if(row[3]>0){karZararTLCell.classList.add('profit');karZararYuzdeCell.classList.add('profit')}else if(row[3]<0){karZararTLCell.classList.add('loss');karZararYuzdeCell.classList.add('loss')}
             });
-
-            document.getElementById('toplam-varlik').textContent = formatCurrency(toplamVarlik);
-            const toplamKarZararP = document.getElementById('toplam-kar-zarar');
-            toplamKarZararP.textContent = formatCurrency(toplamKarZarar);
-            if (toplamKarZarar > 0) toplamKarZararP.classList.add('profit');
-            else if (toplamKarZarar < 0) toplamKarZararP.classList.add('loss');
-
-            // Grafiklerin verileri artık doğrudan sayısal olduğu için ayıklamaya gerek yok
-            new Chart(document.getElementById('pastaGrafik'), {type:'doughnut',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{data:data.ozetTablosu.map(r=>r[2]),backgroundColor:['#4a6cf7','#ff8c3c','#28a745','#dc3545','#6c757d'],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:'bottom'}}}});
-            new Chart(document.getElementById('sutunGrafik'), {type:'bar',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{label:'Güncel Değer (TL)',data:data.ozetTablosu.map(r=>r[2]),backgroundColor:'rgba(74, 108, 247, 0.8)',borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0}}}});
-
-        }).catch(error => { document.getElementById('loading').textContent = "Veri çekilirken kritik bir hata oluştu: " + error; });
+            document.getElementById('toplam-varlik').textContent=formatCurrency(toplamVarlik);const t=document.getElementById('toplam-kar-zarar');t.textContent=formatCurrency(toplamKarZarar);
+            if(toplamKarZarar>0)t.classList.add('profit');else if(toplamKarZarar<0)t.classList.add('loss');
+            new Chart(document.getElementById('pastaGrafik'),{type:'doughnut',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{data:data.ozetTablosu.map(r=>r[2]),backgroundColor:['#4a6cf7','#ff8c3c','#28a745','#dc3545','#6c757d'],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:'bottom'}}}});
+            new Chart(document.getElementById('sutunGrafik'),{type:'bar',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{label:'Güncel Değer (TL)',data:data.ozetTablosu.map(r=>r[2]),backgroundColor:'rgba(74, 108, 247, 0.8)',borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0}}}});
+        }).catch(error=>{document.getElementById('loading').textContent="Veri çekilirken kritik bir hata oluştu: "+error});
     </script>
 </body>
 </html>
