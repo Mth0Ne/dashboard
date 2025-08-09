@@ -112,3 +112,16 @@
             });
 
             document.getElementById('toplam-varlik').textContent = formatCurrency(toplamVarlik);
+            const toplamKarZararP = document.getElementById('toplam-kar-zarar');
+            toplamKarZararP.textContent = formatCurrency(toplamKarZarar);
+            if (toplamKarZarar > 0) toplamKarZararP.classList.add('profit');
+            else if (toplamKarZarar < 0) toplamKarZararP.classList.add('loss');
+
+            // DÜZELTME: Grafiklerin veri aldığı sütun numaraları güncellendi
+            new Chart(document.getElementById('pastaGrafik'), {type:'doughnut',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{data:data.ozetTablosu.map(r=>parseFloat(r[2].replace(/\./g,'').replace(',','.'))),backgroundColor:['#4a6cf7','#ff8c3c','#28a745','#dc3545','#6c757d'],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:'bottom'}}}});
+            new Chart(document.getElementById('sutunGrafik'), {type:'bar',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{label:'Güncel Değer (TL)',data:data.ozetTablosu.map(r=>parseFloat(r[2].replace(/\./g,'').replace(',','.'))),backgroundColor:'rgba(74, 108, 247, 0.8)',borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0}}}});
+        
+        }).catch(error => { document.getElementById('loading').textContent = "Veri çekilirken kritik bir hata oluştu: " + error; });
+    </script>
+</body>
+</html>
