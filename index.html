@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* NİHAİ MOBİL UYUMLU TASARIM */
         :root {
             --arkaplan: #f7f8fc; --kart-arkaplan: #ffffff; --golge: rgba(108, 114, 147, 0.1); 
             --ana-yazi: #1e2022; --ikincil-yazi: #6c757d; --vurgu-rengi: #4a6cf7; 
@@ -37,7 +36,6 @@
         .chart-wrapper { position: relative; height: 350px; width: 100%; }
         #loading { text-align: center; padding: 50px; font-size: 1.2em; color: var(--ikincil-yazi); }
         
-        /* --- MOBİL UYUMLULUK KODLARI BURADA --- */
         @media (max-width: 992px) {
             .chart-container { grid-template-columns: 1fr; }
         }
@@ -45,31 +43,32 @@
             body { padding: 0; }
             .main-container { padding: 0 16px 16px 16px; }
             .header-bar { padding: 16px; margin-bottom: 24px; border-radius: 0; }
-            td, th { padding: 12px 8px; font-size: 0.9em; }
             h1 { font-size: 1.4em; }
             h2 { font-size: 1.2em; }
             .kpi-value { font-size: 1.8em; }
             .card { padding: 16px; }
-
-            /* Tabloyu kart yapısına dönüştür */
+            
+            /* MOBİL TASARIM DÜZELTMESİ: Flexbox ile daha stabil yapı */
             thead { display: none; }
-            tr { display: block; border: 1px solid var(--border-rengi); border-radius: 8px; margin-bottom: 16px; padding: 8px; }
-            td { display: block; text-align: right; border-bottom: 1px solid #f2f2f2; position: relative; padding-left: 50%; }
+            table, tbody, tr, td { display: block; width: 100%; }
+            tr { border: 1px solid var(--border-rengi); border-radius: 8px; margin-bottom: 16px; }
+            td { 
+                display: flex;
+                justify-content: space-between;
+                text-align: right; 
+                padding: 12px;
+                font-size: 0.95em;
+            }
             td:last-child { border-bottom: 0; }
             td::before {
                 content: attr(data-label);
-                position: absolute;
-                left: 8px;
-                width: calc(50% - 16px);
-                padding-right: 10px;
-                white-space: nowrap;
-                text-align: left;
                 font-weight: 600;
                 color: var(--ikincil-yazi);
+                text-align: left;
+                margin-right: 16px;
             }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header class="header-bar"><h1>Portföy Gösterge Paneli</h1></header>
@@ -100,35 +99,38 @@
             <div class="card" style="animation-delay: 0.5s;"><h2>Fonların Güncel Değerleri</h2><div class="chart-wrapper"><canvas id="sutunGrafik"></canvas></div></div>
         </div>
     </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script>
-        const aPiUrl = 'https://script.google.com/macros/s/AKfycbwVYj8viYLwguWIRIsw0hiokQGbjKhRZ1e0vASd_bFnbakpYs4vcz3TvGw44p7BpVZx/exec';
+        document.addEventListener("DOMContentLoaded", function() {
+            const aPiUrl = 'https://script.google.com/macros/s/AKfycbwVYj8viYLwguWIRIsw0hiokQGbjKhRZ1e0vASd_bFnbakpYs4vcz3TvGw44p7BpVZx/exec';
 
-        function formatCurrency(n){if(typeof n!=='number'||isNaN(n))return"-";return new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY'}).format(n)}
-        function formatPercentage(r){if(typeof r!=='number'||isNaN(r))return"-";return new Intl.NumberFormat('tr-TR',{style:'percent',minimumFractionDigits:2,maximumFractionDigits:2}).format(r)}
+            function formatCurrency(n){if(typeof n!=='number'||isNaN(n))return"-";return new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY'}).format(n)}
+            function formatPercentage(r){if(typeof r!=='number'||isNaN(r))return"-";return new Intl.NumberFormat('tr-TR',{style:'percent',minimumFractionDigits:2,maximumFractionDigits:2}).format(r)}
 
-        fetch(aPiUrl).then(response=>response.json()).then(data=>{
-            if(data.hata){document.getElementById('loading').textContent="API Hatası: "+data.hata;return}
-            document.getElementById('loading').style.display='none';document.getElementById('ozet-tablosu').style.display='table';
-            let toplamVarlik=0,toplamKarZarar=0;const ozetBody=document.getElementById('ozet-tablosu-body');
-            data.ozetTablosu.forEach(row=>{
-                let tr=ozetBody.insertRow();
-                // MOBİL UYUM İÇİN DATA-LABEL EKLE
-                tr.insertCell().innerHTML=`<span class="fon-kodu">${row[0]}</span>`;
-                let gunlukDegisimCell=tr.insertCell();gunlukDegisimCell.setAttribute('data-label','Günlük Değişim');gunlukDegisimCell.textContent=formatPercentage(row[1]);
-                let guncelDegerCell=tr.insertCell();guncelDegerCell.setAttribute('data-label','Güncel Değer');guncelDegerCell.textContent=formatCurrency(row[2]);
-                let maliyetCell=tr.insertCell();maliyetCell.setAttribute('data-label','Toplam Maliyet');maliyetCell.textContent=formatCurrency(row[4]);
-                let karZararTLCell=tr.insertCell();karZararTLCell.setAttribute('data-label','Toplam K/Z (TL)');karZararTLCell.textContent=formatCurrency(row[3]);
-                let karZararYuzdeCell=tr.insertCell();karZararYuzdeCell.setAttribute('data-label','Toplam K/Z (%)');karZararYuzdeCell.textContent=formatPercentage(row[5]);
-                
-                if(row[1]>0)gunlukDegisimCell.classList.add('profit');else if(row[1]<0)gunlukDegisimCell.classList.add('loss');
-                toplamVarlik+=row[2];toplamKarZarar+=row[3];
-                if(row[3]>0){karZararTLCell.classList.add('profit');karZararYuzdeCell.classList.add('profit')}else if(row[3]<0){karZararTLCell.classList.add('loss');karZararYuzdeCell.classList.add('loss')}
-            });
-            document.getElementById('toplam-varlik').textContent=formatCurrency(toplamVarlik);const t=document.getElementById('toplam-kar-zarar');t.textContent=formatCurrency(toplamKarZarar);
-            if(toplamKarZarar>0)t.classList.add('profit');else if(toplamKarZarar<0)t.classList.add('loss');
-            new Chart(document.getElementById('pastaGrafik'),{type:'doughnut',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{data:data.ozetTablosu.map(r=>r[2]),backgroundColor:['#4a6cf7','#ff8c3c','#28a745','#dc3545','#6c757d'],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:'bottom'}}}});
-            new Chart(document.getElementById('sutunGrafik'),{type:'bar',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{label:'Güncel Değer (TL)',data:data.ozetTablosu.map(r=>r[2]),backgroundColor:'rgba(74, 108, 247, 0.8)',borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0}}}});
-        }).catch(error=>{document.getElementById('loading').textContent="Veri çekilirken kritik bir hata oluştu: "+error});
+            fetch(aPiUrl).then(response=>response.json()).then(data=>{
+                if(data.hata){document.getElementById('loading').textContent="API Hatası: "+data.hata;return}
+                document.getElementById('loading').style.display='none';document.getElementById('ozet-tablosu').style.display='table';
+                let toplamVarlik=0,toplamKarZarar=0;const ozetBody=document.getElementById('ozet-tablosu-body');
+                data.ozetTablosu.forEach(row=>{
+                    let tr=ozetBody.insertRow();
+                    tr.insertCell().innerHTML=`<span class="fon-kodu">${row[0]}</span>`;
+                    let gunlukDegisimCell=tr.insertCell();gunlukDegisimCell.setAttribute('data-label','Günlük Değişim');gunlukDegisimCell.textContent=formatPercentage(row[1]);
+                    let guncelDegerCell=tr.insertCell();guncelDegerCell.setAttribute('data-label','Güncel Değer');guncelDegerCell.textContent=formatCurrency(row[2]);
+                    let maliyetCell=tr.insertCell();maliyetCell.setAttribute('data-label','Toplam Maliyet');maliyetCell.textContent=formatCurrency(row[4]);
+                    let karZararTLCell=tr.insertCell();karZararTLCell.setAttribute('data-label','Toplam K/Z (TL)');karZararTLCell.textContent=formatCurrency(row[3]);
+                    let karZararYuzdeCell=tr.insertCell();karZararYuzdeCell.setAttribute('data-label','Toplam K/Z (%)');karZararYuzdeCell.textContent=formatPercentage(row[5]);
+                    
+                    if(row[1]>0)gunlukDegisimCell.classList.add('profit');else if(row[1]<0)gunlukDegisimCell.classList.add('loss');
+                    toplamVarlik+=row[2];toplamKarZarar+=row[3];
+                    if(row[3]>0){karZararTLCell.classList.add('profit');karZararYuzdeCell.classList.add('profit')}else if(row[3]<0){karZararTLCell.classList.add('loss');karZararYuzdeCell.classList.add('loss')}
+                });
+                document.getElementById('toplam-varlik').textContent=formatCurrency(toplamVarlik);const t=document.getElementById('toplam-kar-zarar');t.textContent=formatCurrency(toplamKarZarar);
+                if(toplamKarZarar>0)t.classList.add('profit');else if(toplamKarZarar<0)t.classList.add('loss');
+                new Chart(document.getElementById('pastaGrafik'),{type:'doughnut',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{data:data.ozetTablosu.map(r=>r[2]),backgroundColor:['#4a6cf7','#ff8c3c','#28a745','#dc3545','#6c757d'],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:'bottom'}}}});
+                new Chart(document.getElementById('sutunGrafik'),{type:'bar',data:{labels:data.ozetTablosu.map(r=>r[0]),datasets:[{label:'Güncel Değer (TL)',data:data.ozetTablosu.map(r=>r[2]),backgroundColor:'rgba(74, 108, 247, 0.8)',borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0}}}});
+            }).catch(error=>{document.getElementById('loading').textContent="Veri çekilirken kritik bir hata oluştu: "+error});
+        });
     </script>
 </body>
 </html>
