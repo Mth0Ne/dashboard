@@ -10,8 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* Tasarım stillerinde değişiklik yok */
-        :root { --arkaplan: #f7f8fc; --kart-arkaplan: #ffffff; --golge: rgba(108, 114, 147, 0.1); --ana-yazi: #1e2022; --ikincil-yazi: #6c757d; --vurgu-rengi: #4a6cf7; --yesil: #198754; --kirmizi: #dc3545; --border-rengi: #e9ecef; }
+        :root {
+            --arkaplan: #f7f8fc; --kart-arkaplan: #ffffff; --golge: rgba(108, 114, 147, 0.1); 
+            --ana-yazi: #1e2022; --ikincil-yazi: #6c757d; --vurgu-rengi: #4a6cf7; 
+            --yesil: #198754; --kirmizi: #dc3545; --border-rengi: #e9ecef;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         body { font-family: 'Inter', sans-serif; background-color: var(--arkaplan); color: var(--ana-yazi); margin: 0; padding: 0; }
         .header-bar { background-color: var(--kart-arkaplan); padding: 20px 32px; border-bottom: 1px solid var(--border-rengi); margin-bottom: 32px; animation: fadeIn 0.5s ease-out; }
         .header-bar h1 { font-size: 1.6em; font-weight: 700; margin: 0; text-align: center; }
@@ -24,10 +28,13 @@
         thead th { color: var(--ikincil-yazi); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.75px; }
         tbody tr:last-child td { border-bottom: none; }
         .fon-kodu { font-weight: 700; font-size: 1.05em; }
-        .profit { color: var(--yesil); } .loss { color: var(--kirmizi); }
-        .profit::before { content: '▲ '; } .loss::before { content: '▼ '; }
+        .profit { color: var(--yesil); } 
+        .loss { color: var(--kirmizi); }
+        /* DEĞİŞİKLİK: Mobildeki başlık çakışmasını önlemek için simgeleri buradan kaldırdık */
         .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
         .kpi-value { font-size: 2.2em; font-weight: 700; margin: 0; }
+        .kpi-value.profit::before { content: '▲ '; color: var(--yesil); }
+        .kpi-value.loss::before { content: '▼ '; color: var(--kirmizi); }
         .chart-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
         .chart-wrapper { position: relative; height: 350px; width: 100%; }
         #loading { text-align: center; padding: 50px; font-size: 1.2em; color: var(--ikincil-yazi); }
@@ -46,7 +53,6 @@
             tr td:last-child { border-bottom: none; }
             td::before { content: attr(data-label); font-weight: 600; color: var(--ikincil-yazi); text-align: left; padding-right: 16px; }
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -92,29 +98,48 @@
                 if(data.hata){document.getElementById('loading').textContent="API Hatası: "+data.hata;return}
                 document.getElementById('loading').style.display='none';document.getElementById('ozet-tablosu').style.display='table';
                 let toplamVarlik=0,toplamKarZarar=0;const ozetBody=document.getElementById('ozet-tablosu-body');
+                const headers=["Fon Kodu","Günlük Değişim","Güncel Değer","Toplam Maliyet","Toplam K/Z (TL)","Toplam K/Z (%)"];
                 
                 data.ozetTablosu.forEach(row=>{
                     // Gelen veri sırası: [0:Kod, 1:Günlük Değişim(Metin), 2:Güncel Değer, 3:K/Z TL, 4:Maliyet, 5:K/Z %]
                     let tr=ozetBody.insertRow();
                     
-                    let fonKoduCell = tr.insertCell();fonKoduCell.setAttribute('data-label','Fon Kodu');fonKoduCell.innerHTML=`<span class="fon-kodu">${row[0]}</span>`;
+                    let fonKoduCell=tr.insertCell();fonKoduCell.setAttribute('data-label',headers[0]);fonKoduCell.innerHTML=`<span class="fon-kodu">${row[0]}</span>`;
+                    
+                    // DEĞİŞİKLİK 1: "Günlük Değişim" sütununu daha akıllı hale getirdik
+                    let gunlukDegisimCell=tr.insertCell();gunlukDegisimCell.setAttribute('data-label',headers[1]);
+                    const degisimStr = row[1].toString(); // Gelen veriyi metne çevir
+                    const degisimSayisal = parseFloat(degisimStr.replace('%','').replace(',','.'));
+                    gunlukDegisimCell.textContent = degisimStr; // Olduğu gibi yazdır
+                    if(degisimSayisal > 0) gunlukDegisimCell.classList.add('profit');
+                    else if(degisimSayisal < 0) gunlukDegisimCell.classList.add('loss');
 
-                    // DEĞİŞİKLİK BURADA: Gelen metni doğrudan kullanıyoruz
-                    let gunlukDegisimCell=tr.insertCell();gunlukDegisimCell.setAttribute('data-label','Günlük Değişim');
-                    gunlukDegisimCell.textContent = row[1]; // API'den gelen "%1.12" gibi metni direkt yaz
-                    const degisimSayisal = parseFloat(row[1].replace('%','').replace(',','.'));
-                    if (degisimSayisal > 0) gunlukDegisimCell.classList.add('profit');
-                    else if (degisimSayisal < 0) gunlukDegisimCell.classList.add('loss');
+                    let guncelDegerCell=tr.insertCell();guncelDegerCell.setAttribute('data-label',headers[2]);guncelDegerCell.textContent=formatCurrency(row[2]);
+                    let maliyetCell=tr.insertCell();maliyetCell.setAttribute('data-label',headers[3]);maliyetCell.textContent=formatCurrency(row[4]);
+                    
+                    // DEĞİŞİKLİK 2: Simgeyi ve metni JavaScript ile birleştirerek başlık çakışmasını çözdük
+                    const kz_tl = row[3];
+                    const kz_yuzde = row[5];
+                    
+                    let karZararTLCell=tr.insertCell();karZararTLCell.setAttribute('data-label',headers[4]);
+                    let karZararYuzdeCell=tr.insertCell();karZararYuzdeCell.setAttribute('data-label',headers[5]);
+                    
+                    karZararYuzdeCell.textContent = formatPercentage(kz_yuzde);
 
-                    let guncelDegerCell=tr.insertCell();guncelDegerCell.setAttribute('data-label','Güncel Değer');guncelDegerCell.textContent=formatCurrency(row[2]);
-                    let maliyetCell=tr.insertCell();maliyetCell.setAttribute('data-label','Toplam Maliyet');maliyetCell.textContent=formatCurrency(row[4]);
-                    let karZararTLCell=tr.insertCell();karZararTLCell.setAttribute('data-label','Toplam K/Z (TL)');karZararTLCell.textContent=formatCurrency(row[3]);
-                    let karZararYuzdeCell=tr.insertCell();karZararYuzdeCell.setAttribute('data-label','Toplam K/Z (%)');karZararYuzdeCell.textContent=formatPercentage(row[5]);
+                    if (kz_tl > 0) {
+                        karZararTLCell.textContent = '▲ ' + formatCurrency(kz_tl);
+                        karZararTLCell.classList.add('profit');
+                        karZararYuzdeCell.classList.add('profit');
+                    } else if (kz_tl < 0) {
+                        karZararTLCell.textContent = '▼ ' + formatCurrency(kz_tl);
+                        karZararTLCell.classList.add('loss');
+                        karZararYuzdeCell.classList.add('loss');
+                    } else {
+                        karZararTLCell.textContent = formatCurrency(kz_tl);
+                    }
                     
                     toplamVarlik+=row[2];toplamKarZarar+=row[3];
-                    if(row[3]>0){karZararTLCell.classList.add('profit');karZararYuzdeCell.classList.add('profit')}else if(row[3]<0){karZararTLCell.classList.add('loss');karZararYuzdeCell.classList.add('loss')}
                 });
-
                 document.getElementById('toplam-varlik').textContent=formatCurrency(toplamVarlik);const t=document.getElementById('toplam-kar-zarar');t.textContent=formatCurrency(toplamKarZarar);
                 if(toplamKarZarar>0)t.classList.add('profit');else if(toplamKarZarar<0)t.classList.add('loss');
                 
